@@ -11,5 +11,5 @@ COPY . .
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD python -c "import os; open('/proc/1/cmdline').read()" || exit 1
+  CMD python -c "import redis,os; redis.Redis(host=os.environ.get('REDIS_HOST','redis'),port=int(os.environ.get('REDIS_PORT',6379)),password=os.environ.get('REDIS_PASSWORD')).ping()"
 CMD ["python", "worker.py"]
