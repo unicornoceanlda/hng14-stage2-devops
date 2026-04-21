@@ -1,9 +1,9 @@
-FROM node:20-slim AS builder
+FROM node:20-slim-bookworm AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --only=production
 
-FROM node:20-slim
+FROM node:20-slim-bookworm
 RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules

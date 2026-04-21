@@ -108,6 +108,9 @@ jobs:
             docker build -t $svc:scan ./$svc
           done
 
+      - name: Show CRITICAL CVEs in api image (debug)
+        run: trivy image --severity CRITICAL --ignore-unfixed --exit-code 0 api:scan || true
+
       - name: Scan api image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
