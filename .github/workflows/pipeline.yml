@@ -108,43 +108,41 @@ jobs:
             docker build -t $svc:scan ./$svc
           done
 
-      - name: Show CRITICAL CVEs in api image (debug)
+      - name: Fail on CRITICAL CVEs (api)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: api:scan
           format: table
-          exit-code: "0"
+          exit-code: "1"
           severity: CRITICAL
           ignore-unfixed: true
 
-      - name: Scan api image with Trivy
+      - name: Fail on CRITICAL CVEs (worker)
         uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: worker:scan
+          format: table
+          exit-code: "1"
+          severity: CRITICAL
+          ignore-unfixed: true
+
+      - name: Fail on CRITICAL CVEs (frontend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: frontend:scan
+          format: table
+          exit-code: "1"
+          severity: CRITICAL
+          ignore-unfixed: true
+
+      - name: Generate SARIF report for upload
+        uses: aquasecurity/trivy-action@master
+        if: always()
         with:
           image-ref: api:scan
           format: sarif
           output: trivy-api.sarif
-          exit-code: "1"
-          severity: CRITICAL
-          ignore-unfixed: true
-
-      - name: Scan worker image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: worker:scan
-          format: sarif
-          output: trivy-worker.sarif
-          exit-code: "1"
-          severity: CRITICAL
-          ignore-unfixed: true
-
-      - name: Scan frontend image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: frontend:scan
-          format: sarif
-          output: trivy-frontend.sarif
-          exit-code: "1"
-          severity: CRITICAL
+          exit-code: "0"
           ignore-unfixed: true
 
       - name: Upload SARIF results
