@@ -204,6 +204,16 @@ jobs:
             cd ~/hng14-stage2-devops
             git pull origin main
 
+            # Ensure Redis is up and healthy before rolling app services
+            docker compose up -d redis
+            for i in $(seq 1 12); do
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q redis) 2>/dev/null)
+              echo "redis health: $STATUS"
+              [ "$STATUS" = "healthy" ] && break
+              [ $i -eq 12 ] && echo "Redis failed to become healthy" && exit 1
+              sleep 5
+            done
+
             for svc in api worker frontend; do
               docker compose build $svc
               docker compose up -d --no-deps $svc
