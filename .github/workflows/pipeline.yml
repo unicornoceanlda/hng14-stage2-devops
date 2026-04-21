@@ -109,7 +109,13 @@ jobs:
           done
 
       - name: Show CRITICAL CVEs in api image (debug)
-        run: trivy image --severity CRITICAL --ignore-unfixed --exit-code 0 api:scan || true
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: api:scan
+          format: table
+          exit-code: "0"
+          severity: CRITICAL
+          ignore-unfixed: true
 
       - name: Scan api image with Trivy
         uses: aquasecurity/trivy-action@master
